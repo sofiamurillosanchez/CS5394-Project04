@@ -2,6 +2,7 @@ from PIL import Image
 import pytesseract
 import numpy as np
 import cv2
+import math
 import matplotlib.pyplot as plt
 import requests
 from io import BytesIO
@@ -132,3 +133,29 @@ def get_top_image_urls_from_subreddit(subreddit_name, get_large_set=True):
     # Define subreddit function arguments and return all static image URLs
     post_args = {'time_filter': 'all', 'limit': None} if get_large_set else {'time_filter': 'all'}
     return [post.url for post in subreddit.top(**post_args) if post.url[-4:] in ['.jpg', '.png']]
+
+
+def get_image_features(image, get_feature_image=False):
+    grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    sift = cv2.SIFT_create()
+    kp, des = sift.detectAndCompute(grayscale, None)
+    if get_feature_image:
+        kp_image = cv2.drawKeypoints(image, kp, None, color=(0, 255, 0), flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+        return kp, des, kp_image
+    else:
+        return kp, des
+
+
+def get_image_matches(des1, des2, get_match_image=False, img1=None, img2=None, kp1=None, kp2=None):
+    if get_match_image and (img1 is None or img2 is None or kp1 is None or kp2 is None):
+        raise ValueError('To product a match image, original images img1 and img2, along with key points kp1 and kp2, must be provided')
+
+    bf = cv2.BFMatcher(cv2.NORM_L2, crossCheck=True)
+    matches = bf.match(des1, des2)
+    matches = sorted(matches, key=lambda x: x.distance)
+
+    if get_match_image:
+        match_img = cv2.drawMatches(img1, kp1, img2, kp2, matches[:10], None, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+        return matches, match_img
+
+    return matches
