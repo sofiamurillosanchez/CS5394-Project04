@@ -1,6 +1,6 @@
 # CS5394-Project04
 
-**Link to Writeup:* https://github.com/sofiamurillosanchez/CS5394-Project04/blob/main/P04%20Writeup.pdf 
+**Link to Writeup:** https://github.com/sofiamurillosanchez/CS5394-Project04/blob/main/P04%20Writeup.pdf 
 
 ## Running the Streamlit App
 * The Streamlit App is currently running off an AWS EC2 instance because of memory constrictions of other options, so it doen't have a static location. (It could crash if multiple people try to use it at once.)
